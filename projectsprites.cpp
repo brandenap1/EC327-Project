@@ -14,14 +14,16 @@
 #include <vector>
 #include <map>
 
-using std::cout; //Used for displaying time info in terminal 
-using std::cin;  //Adjusting time
-using std::string; //temps for time info
+using std::string;
+using std::to_string;
 
 
 int main() {
-
+  
+    // window
     sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu");
+
+    // border
     sf::Vector2f borderSize;
     float borderEndx = 80.f;
     float borderEndy = 80.f;
@@ -60,14 +62,42 @@ int main() {
 
 
     //dimensions for gamescreen border
+
     sf::RectangleShape gameBorder(sf::Vector2f(borderSize.x,borderSize.y));
     gameBorder.setPosition(borderEndx, borderEndy);
     gameBorder.setFillColor(sf::Color::Black);
     gameBorder.setOutlineThickness(5);
     gameBorder.setOutlineColor(sf::Color::White);
+
+
+    // sprite
+    sf::Texture spritesheet;
+    spritesheet.loadFromFile("charspritescropped.png");
+    sf::IntRect SourceSprite(0,0, 210, 200);
+    sf::Sprite sprite(spritesheet,SourceSprite);
+    sprite.setScale(0.8,0.8);
+
     //time for animation trigger
     sf::Clock clock;
     std::cout.precision(18);
+  
+    // point counter
+    // border
+    sf::RectangleShape pointCounter(sf::Vector2f(100, 50));
+    pointCounter.setPosition(660, 50);
+    pointCounter.setFillColor(sf::Color::Black);
+    pointCounter.setOutlineThickness(5);
+    pointCounter.setOutlineColor(sf::Color::White);
+    // points
+    sf::Font font;
+    font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
+    sf::Text points;
+    points.setFont(font);
+    points.setCharacterSize(40);
+    points.setFillColor(sf::Color::Red);
+    points.setOrigin(30, 20);
+    points.setPosition(735, 70);
+
     while (window.isOpen())
     {
         //Character moves
@@ -124,18 +154,49 @@ int main() {
             clock.restart();
         }
 
+        // adding points
+        int collisions = 0;
+        // if (borders_collide == true)
+        //   collisions += (amount of points)
+        string numpoints = to_string(collisions);
+        if (numpoints.size() < 2)
+            numpoints = "0" + numpoints;
+        points.setString(numpoints);
+
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            // left foot full extension
+             sf::IntRect lffe(0,0, 200, 200);
+             sf::Sprite charmove1(spritesheet,lffe);
+             // left foot half extension
+             sf::IntRect lfhe(220, 0, 210, 200);
+             sf::Sprite charmove2(spritesheet,lfhe);
+             // right foot forward
+             sf::IntRect rff(415,0, 210, 200);
+             sf::Sprite charmove3(spritesheet,rff);
+             // right foot half extension
+             sf::IntRect rfhe(645,0, 210, 200);
+             sf::Sprite charmove4(spritesheet,rfhe);
+             // right foot full extension
+             sf::IntRect rffe(870,0, 210, 200);
+             sf::Sprite charmove5(spritesheet,rffe);
+             // Idle
+             sf::IntRect idle(1090,0, 210, 200);
+             sf::Sprite charmove6(spritesheet, idle);
+
         }
      
         //draw sprites  
         window.clear(); 
+        window.draw(pointCounter);
         window.draw(gameBorder); 
         window.draw(itemsprite); 
         window.draw(sprite);
+        window.draw(points);
         window.display();
     }
     return 0;
