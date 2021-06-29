@@ -36,6 +36,7 @@ int main() {
     spritesheet.loadFromFile("charspritescropped.png");
     sf::IntRect SourceSprite(0,0, 210, 200);
     sf::Sprite sprite(spritesheet,SourceSprite);
+    sprite.setScale(0.8,0.8);
     sf::Clock clock;
     // Animation charanimation(spritesheet, sf::Vector2u(6,0), 0.3f);
     std::cout.precision(18);
