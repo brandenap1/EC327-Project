@@ -1,4 +1,4 @@
-// Copyright 2021 Branden Applewhite bja955@bu.edu
+// Copyright 2021 Branden Applewhite bja955@bu.edu | Chris Gough cwgough@bu.edu
 
 
 
@@ -21,7 +21,7 @@ using std::string; //temps for time info
 
 int main() {
 
-    sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu");
+    sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu");
     sf::Vector2f borderSize;
     float borderEndx = 40.f;
     float borderEndy = 40.f;
@@ -98,8 +98,13 @@ int main() {
             clock.restart();
         }
 
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
 
-             // left foot full extension
+            // left foot full extension
              sf::IntRect lffe(0,0, 200, 200);
              sf::Sprite charmove1(spritesheet,lffe);
              // left foot half extension
@@ -116,7 +121,9 @@ int main() {
              sf::Sprite charmove5(spritesheet,rffe);
              // Idle
              sf::IntRect idle(1090,0, 210, 200);
-             sf::Sprite charmove6(spritesheet, idle); 
+             sf::Sprite charmove6(spritesheet, idle);
+        }
+     
         //draw sprites  
         window.clear(); 
         window.draw(gameBorder);  
