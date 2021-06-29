@@ -14,9 +14,8 @@
 #include <vector>
 #include <map>
 
-using std::cout; //Used for displaying time info in terminal 
-using std::cin;  //Adjusting time
-using std::string; //temps for time info
+using std::string;
+using std::to_string;
 
 
 int main() {
@@ -123,7 +122,14 @@ int main() {
             clock.restart();
         }
 
-        points.setString("42");
+        // adding points
+        int collisions = 0;
+        // if (borders_collide == true)
+        //   collisions += (amount of points)
+        string numpoints = to_string(collisions);
+        if (numpoints.size() < 2)
+            numpoints = "0" + numpoints;
+        points.setString(numpoints);
 
         sf::Event event;
         while (window.pollEvent(event))
