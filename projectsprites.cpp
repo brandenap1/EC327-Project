@@ -17,6 +17,7 @@
 
 using std::string;
 using std::to_string;
+using std::fmod;
 
 bool CheckCollision(sf::Sprite player, sf::Sprite item) {
     float proximity;
@@ -80,6 +81,9 @@ int main() {
 
     std::vector<sf::Sprite> onscreenSprites;
     //Items to be moved
+    int x = 0, y = 0;
+    int count = 0;
+    // sf::Clock count;
     //clock item
     sf::IntRect oclock(30,185,90,90);
     sf::Sprite oclockSprite(itemsheet,oclock);
@@ -106,28 +110,19 @@ int main() {
     rscrollSprite.setPosition(530,100);
     onscreenSprites.push_back(rscrollSprite);
     //green scroll item (more points - faster)
-    sf::IntRect gscroll(1005,175,70,105);
+    sf::IntRect gscroll(1090,175,70,105);
     sf::Sprite gscrollSprite(itemsheet,gscroll);
-    gscrollSprite.setPosition(740,100);
+    gscrollSprite.setPosition(650,100);
     onscreenSprites.push_back(gscrollSprite);
     //yellow scroll item (most points - fastest)
-    sf::IntRect yscroll(1090,175,70,105);
+    sf::IntRect yscroll(1005,175,70,105);
     sf::Sprite yscrollSprite(itemsheet,yscroll);
-    yscrollSprite.setPosition(50,220);
+    // yscrollSprite.setPosition(50,220);
     onscreenSprites.push_back(yscrollSprite);
-
     //time for animation trigger
     sf::Clock clock;
-    std::cout.precision(18);
   
     // point counter
-    // border (may no longer be necessary)
-    // sf::RectangleShape pointCounter(sf::Vector2f(100, 50));
-    // pointCounter.setPosition(660, 50);
-    // pointCounter.setFillColor(sf::Color::Black);
-    // pointCounter.setOutlineThickness(5);
-    // pointCounter.setOutlineColor(sf::Color::White);
-    // points
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
@@ -137,6 +132,7 @@ int main() {
     points.setPosition(650, 5);
     bool mainMenu = true;
 
+    window.setFramerateLimit(200);
     while (window.isOpen())
     {
         // Start at main menu
@@ -222,6 +218,24 @@ int main() {
                 numpoints = "0" + numpoints;
             points.setString(numpoints);
 
+        // item movement
+        if (count % 200 == 0) {
+            x = 337;
+            y = 0;
+            yscrollSprite.setPosition(x, y);
+        }
+        yscrollSprite.setPosition(yscrollSprite.getPosition().x, yscrollSprite.getPosition().y + 3);
+        // y += 3;
+        count++;
+
+        // adding points
+        int collisions = 0;
+        // if (borders_collide == true)
+        //   collisions += (amount of points)
+        string numpoints = to_string(collisions);
+        if (numpoints.size() < 2)
+            numpoints = "0" + numpoints;
+        points.setString(numpoints);
             sf::Event event;
             while (window.pollEvent(event))
             {
