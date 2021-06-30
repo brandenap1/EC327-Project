@@ -24,16 +24,16 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu");
 
     // dimensions for gamescreen border
-    sf::RectangleShape gameBorder(sf::Vector2f(borderSize.x,borderSize.y));
-    gameBorder.setPosition(borderEndx, borderEndy);
-    gameBorder.setFillColor(sf::Color::Black);
-    gameBorder.setOutlineThickness(5);
-    gameBorder.setOutlineColor(sf::Color::White);
     sf::Vector2f borderSize;
     float borderEndx = 80.f;
     float borderEndy = 80.f;
     borderSize.x = window.getSize().x - 160;
     borderSize.y = window.getSize().y - 160;
+    sf::RectangleShape gameBorder(sf::Vector2f(borderSize.x,borderSize.y));
+    gameBorder.setPosition(borderEndx, borderEndy);
+    gameBorder.setFillColor(sf::Color::Black);
+    gameBorder.setOutlineThickness(5);
+    gameBorder.setOutlineColor(sf::Color::White);
 
     //spritesheet for char animations
     sf::Texture spritesheet;
@@ -82,21 +82,20 @@ int main() {
     std::cout.precision(18);
   
     // point counter
-    // border
-    sf::RectangleShape pointCounter(sf::Vector2f(100, 50));
-    pointCounter.setPosition(660, 50);
-    pointCounter.setFillColor(sf::Color::Black);
-    pointCounter.setOutlineThickness(5);
-    pointCounter.setOutlineColor(sf::Color::White);
+    // border (may no longer be necessary)
+    // sf::RectangleShape pointCounter(sf::Vector2f(100, 50));
+    // pointCounter.setPosition(660, 50);
+    // pointCounter.setFillColor(sf::Color::Black);
+    // pointCounter.setOutlineThickness(5);
+    // pointCounter.setOutlineColor(sf::Color::White);
     // points
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
     points.setFont(font);
-    points.setCharacterSize(40);
+    points.setCharacterSize(60);
     points.setFillColor(sf::Color::Red);
-    points.setOrigin(30, 20);
-    points.setPosition(735, 70);
+    points.setPosition(650, 5);
 
     while (window.isOpen())
     {
@@ -192,7 +191,7 @@ int main() {
      
         //draw sprites  
         window.clear(); 
-        window.draw(pointCounter);
+        // window.draw(pointCounter);
         window.draw(gameBorder); 
         window.draw(oclockSprite);
         window.draw(heartSprite);
