@@ -37,6 +37,7 @@ bool CheckCollision(sf::Sprite player, sf::Sprite item) {
 int main() {
   
     // window
+
     sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu | jsevilla@bu.edu");
 
     // dimensions for gamescreen border
@@ -69,7 +70,6 @@ int main() {
     sf::IntRect oclock(30,185,90,90);
     sf::Sprite oclockSprite(itemsheet,oclock);
     oclockSprite.setPosition(50,100);
-    onscreenSprites.push_back(oclockSprite);
     //heart item
     sf::IntRect heart(145,185,90,90);
     sf::Sprite heartSprite(itemsheet,heart);
@@ -100,7 +100,6 @@ int main() {
     sf::Sprite yscrollSprite(itemsheet,yscroll);
     yscrollSprite.setPosition(50,220);
     onscreenSprites.push_back(yscrollSprite);
-
     //time for animation trigger
     sf::Clock clock;
     std::cout.precision(18);
