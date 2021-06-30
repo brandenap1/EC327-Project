@@ -1,5 +1,4 @@
-
-// Copyright 2021 Branden Applewhite bja955@bu.edu | Chris Gough cwgough@bu.edu
+// Copyright 2021 Branden Applewhite bja955@bu.edu | Chris Gough cwgough@bu.edu | Jose Sevilla jsevilla@bu.edu
 
 
 
