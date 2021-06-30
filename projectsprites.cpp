@@ -209,6 +209,17 @@ int main() {
                 sprite.setTextureRect(SourceSprite);
                 clock.restart();
             }
+
+            // item movement
+            if (count % 200 == 0) {
+                x = 337;
+                y = 0;
+                yscrollSprite.setPosition(x, y);
+            }
+            yscrollSprite.setPosition(yscrollSprite.getPosition().x, yscrollSprite.getPosition().y + 3);
+            // y += 3;
+            count++;
+
             // adding points
             int collisions = 0;
             // if (borders_collide == true)
@@ -218,24 +229,6 @@ int main() {
                 numpoints = "0" + numpoints;
             points.setString(numpoints);
 
-        // item movement
-        if (count % 200 == 0) {
-            x = 337;
-            y = 0;
-            yscrollSprite.setPosition(x, y);
-        }
-        yscrollSprite.setPosition(yscrollSprite.getPosition().x, yscrollSprite.getPosition().y + 3);
-        // y += 3;
-        count++;
-
-        // adding points
-        int collisions = 0;
-        // if (borders_collide == true)
-        //   collisions += (amount of points)
-        string numpoints = to_string(collisions);
-        if (numpoints.size() < 2)
-            numpoints = "0" + numpoints;
-        points.setString(numpoints);
             sf::Event event;
             while (window.pollEvent(event))
             {
@@ -267,7 +260,7 @@ int main() {
             window.draw(gameBorder);
             for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
                 window.draw(*it);
-            } 
+            }
             // window.draw(oclockSprite);
             // window.draw(heartSprite);
             // window.draw(boulderSprite);
