@@ -37,7 +37,6 @@ bool CheckCollision(sf::Sprite player, sf::Sprite item) {
 int main() {
   
     // window
-
     sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu | jsevilla@bu.edu");
 
     // dimensions for gamescreen border
@@ -60,9 +59,48 @@ int main() {
     sprite.setPosition(310,1000);
     sprite.setScale(0.8,0.8);
 
+    //spritesheet for main menu
+    std::vector<sf::Sprite> mainmenuSprites;
+    sf::Texture menusheet;
+    menusheet.loadFromFile("mainmenusprites.png");
+    //time game mode
+    sf::IntRect time(0,88, 225, 44);
+    sf::Sprite timeMode(menusheet,time);
+    timeMode.setPosition(310,500);
+    mainmenuSprites.push_back(timeMode);
+    //infinite game mode
+    sf::IntRect inf(0,132, 225, 44);
+    sf::Sprite infMode(menusheet,inf);
+    infMode.setPosition(310,700);
+    mainmenuSprites.push_back(infMode);
+
+
+    //spritesheet for menu options during game
+    sf::Texture optionsheet;
+    optionsheet.loadFromFile("menuoptionscropped.png"); 
+    //pause button
+    sf::IntRect pause(20,0,300,300);
+    sf::Sprite pauseSprite(optionsheet,pause);
+    pauseSprite.scale(0.20,0.20);
+    pauseSprite.setPosition(20,0);
+
+    //Pause Menu
+    std::vector<sf::Sprite> pausemenuSprites;
+    // //home button
+    sf::IntRect home(650,310,300,300);
+    sf::Sprite homeSprite(optionsheet,home);
+    homeSprite.scale(0.25,0.25);
+    homeSprite.setPosition(380,500);
+    pausemenuSprites.push_back(homeSprite);
+    //cancel button (play)
+    sf::IntRect play(930,310,300,300);
+    sf::Sprite playSprite(optionsheet,play);
+    playSprite.scale(0.25,0.25);
+    playSprite.setPosition(470,300);
+    pausemenuSprites.push_back(playSprite);
     //spritesheet for game items
     sf::Texture itemsheet;
-    itemsheet.loadFromFile("itemsspritesheetcropped.png");
+    itemsheet.loadFromFile("itemsspritesheetcropped.png"); 
 
     std::vector<sf::Sprite> onscreenSprites;
     //Items to be moved
@@ -70,6 +108,7 @@ int main() {
     sf::IntRect oclock(30,185,90,90);
     sf::Sprite oclockSprite(itemsheet,oclock);
     oclockSprite.setPosition(50,100);
+    onscreenSprites.push_back(oclockSprite);
     //heart item
     sf::IntRect heart(145,185,90,90);
     sf::Sprite heartSprite(itemsheet,heart);
@@ -100,6 +139,7 @@ int main() {
     sf::Sprite yscrollSprite(itemsheet,yscroll);
     yscrollSprite.setPosition(50,220);
     onscreenSprites.push_back(yscrollSprite);
+
     //time for animation trigger
     sf::Clock clock;
     std::cout.precision(18);
@@ -120,112 +160,198 @@ int main() {
     points.setFillColor(sf::Color::Red);
     points.setPosition(650, 5);
 
+    // text in pause menu
+    sf::Text pauseText;
+    pauseText.setFont(font);
+    pauseText.setCharacterSize(60);
+    pauseText.setFillColor(sf::Color::Red);
+    pauseText.setPosition(324, 400);
+    bool mainMenu = true;
+    bool pauseMenu = false;
+    bool gameScreen = false;
+
     while (window.isOpen())
     {
-        //Character moves
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            sprite.move(2.f,0.f);
+        // Change to pause menu
+        if (pauseMenu && !mainMenu && !gameScreen) {
+            window.clear();
+            for (auto itrs = pausemenuSprites.begin(); itrs != pausemenuSprites.end(); itrs++) {
+                window.draw(*itrs);
+            }
+            pauseText.setString("Pause");
+            window.draw(pauseText);
+            window.display();
+            sf::Sprite home = pausemenuSprites.at(0);
+            sf::Sprite play = pausemenuSprites.at(1);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                //mouse coords
+                sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                //sprite bounds
+                sf::FloatRect playBounds = play.getGlobalBounds();
+                sf::FloatRect homeBounds = home.getGlobalBounds();
+                //check click
+                if (homeBounds.contains(mouse_pos)) {
+                    window.clear();
+                    mainMenu = true;
+                    gameScreen = false;
+                    pauseMenu = false;
+                    //go to main  menu
+                }
+                else if (playBounds.contains(mouse_pos)) {
+                    window.clear();
+                    mainMenu = false;
+                    gameScreen = true;
+                    pauseMenu = false;
+                    //play
+                }
+            }
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            sprite.move(-2.f,0.f);
+        // Start at main menu
+        else if (mainMenu && !pauseMenu && !gameScreen) {
+            window.clear();
+            for (auto itr = mainmenuSprites.begin(); itr != mainmenuSprites.end(); itr++) {
+                window.draw(*itr);
+            }
+            window.display();
+            sf::Sprite inf = mainmenuSprites.at(1);
+            sf::Sprite time = mainmenuSprites.at(0);
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                //mouse coords
+                sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                //sprite bounds
+                sf::FloatRect timeBounds = time.getGlobalBounds();
+                sf::FloatRect infBounds = inf.getGlobalBounds();
+                //check click
+                if (timeBounds.contains(mouse_pos)) {
+                    window.clear();
+                    mainMenu = false;
+                    gameScreen = true;
+                    pauseMenu = false;
+                    //play time game mode
+                }
+                else if (infBounds.contains(mouse_pos)) {
+                    window.clear();
+                    mainMenu = false;
+                    gameScreen = true;
+                    pauseMenu = false;
+                    //play inf game mode
+                }
+            }
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            sprite.move(0.f,-2.f);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            sprite.move(0.f,2.f);
-        }
-        for (auto it = onscreenSprites.begin(); it != onscreenSprites.end();) {
-            sf::Sprite curr = *it;
-            if (CheckCollision(sprite, curr)) {
-                it = onscreenSprites.erase(it);
+        // Play Game
+        else if (!pauseMenu && !mainMenu && gameScreen) {
+            //Character moves
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                sprite.move(2.f,0.f);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+                sprite.move(-2.f,0.f);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+                sprite.move(0.f,-2.f);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+                sprite.move(0.f,2.f);
+            }
+            for (auto it = onscreenSprites.begin(); it != onscreenSprites.end();) {
+                sf::Sprite curr = *it;
+                if (CheckCollision(sprite, curr)) {
+                    it = onscreenSprites.erase(it);
+                }
+                else
+                    it++; 
             }
 
-            else
-                it++; 
-        }
-        //Border Collisions
-        if (sprite.getPosition().x <=  borderEndx) {
-            sprite.move(2.f,0.f);
-        }
-        if (sprite.getPosition().y <= borderEndy ) {
-            sprite.move(0.f,2.f);
-        }
-        if (sprite.getPosition().x + sprite.getLocalBounds().width >= window.getSize().x ) {
-            sprite.move(-2.f,0.f);
-        }
-        if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
-            sprite.move(0.f,-2.f);
-        }
-
-
-        //     case time 
-        if (clock.getElapsedTime().asSeconds() > 0.1f) {
-            if(SourceSprite.left == 1050) {
-                SourceSprite.left = 0;
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                //mouse coords
+                sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                //sprite bounds
+                sf::FloatRect pauseBounds = pauseSprite.getGlobalBounds();
+                //check click
+                if (pauseBounds.contains(mouse_pos)) {
+                    mainMenu = false;
+                    gameScreen = false;
+                    pauseMenu = true;
+                    //play time game mode
+                }
             }
-            else {
-                SourceSprite.left += 210;
+            //Border Collisions
+            if (sprite.getPosition().x <=  borderEndx) {
+                sprite.move(2.f,0.f);
             }
+            if (sprite.getPosition().y <= borderEndy ) {
+                sprite.move(0.f,2.f);
+            }
+            if (sprite.getPosition().x + sprite.getLocalBounds().width >= window.getSize().x ) {
+                sprite.move(-2.f,0.f);
+            }
+            if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
+                sprite.move(0.f,-2.f);
+            }
+            //     case time 
+            if (clock.getElapsedTime().asSeconds() > 0.1f) {
+                if(SourceSprite.left == 1050) {
+                    SourceSprite.left = 0;
+                }
+                else {
+                    SourceSprite.left += 210;
+                }
+                sprite.setTextureRect(SourceSprite);
+                clock.restart();
+            }
+            // adding points
+            int collisions = 0;
+            // if (borders_collide == true)
+            //   collisions += (amount of points)
+            string numpoints = to_string(collisions);
+            if (numpoints.size() < 2)
+                numpoints = "0" + numpoints;
+            points.setString(numpoints);
 
-            
-            sprite.setTextureRect(SourceSprite);
-            clock.restart();
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    window.close();
+
+                // left foot full extension
+                 sf::IntRect lffe(0,0, 200, 200);
+                 sf::Sprite charmove1(spritesheet,lffe);
+                 // left foot half extension
+                 sf::IntRect lfhe(220, 0, 210, 200);
+                 sf::Sprite charmove2(spritesheet,lfhe);
+                 // right foot forward
+                 sf::IntRect rff(415,0, 210, 200);
+                 sf::Sprite charmove3(spritesheet,rff);
+                 // right foot half extension
+                 sf::IntRect rfhe(645,0, 210, 200);
+                 sf::Sprite charmove4(spritesheet,rfhe);
+                 // right foot full extension
+                 sf::IntRect rffe(870,0, 210, 200);
+                 sf::Sprite charmove5(spritesheet,rffe);
+                 // Idle
+                 sf::IntRect idle(1090,0, 210, 200);
+                 sf::Sprite charmove6(spritesheet, idle);
+            }
+            //draw sprites  
+            window.clear(); 
+            // window.draw(pointCounter);
+            window.draw(gameBorder);
+            for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
+                window.draw(*it);
+            } 
+            // window.draw(oclockSprite);
+            // window.draw(heartSprite);
+            // window.draw(boulderSprite);
+            // window.draw(stumpSprite);
+            // window.draw(rscrollSprite);
+            // window.draw(gscrollSprite);
+            // window.draw(yscrollSprite);
+            window.draw(pauseSprite);
+            window.draw(sprite);
+            window.draw(points);
+            window.display();
         }
-
-        // adding points
-        int collisions = 0;
-        // if (borders_collide == true)
-        //   collisions += (amount of points)
-        string numpoints = to_string(collisions);
-        if (numpoints.size() < 2)
-            numpoints = "0" + numpoints;
-        points.setString(numpoints);
-
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-
-            // left foot full extension
-             sf::IntRect lffe(0,0, 200, 200);
-             sf::Sprite charmove1(spritesheet,lffe);
-             // left foot half extension
-             sf::IntRect lfhe(220, 0, 210, 200);
-             sf::Sprite charmove2(spritesheet,lfhe);
-             // right foot forward
-             sf::IntRect rff(415,0, 210, 200);
-             sf::Sprite charmove3(spritesheet,rff);
-             // right foot half extension
-             sf::IntRect rfhe(645,0, 210, 200);
-             sf::Sprite charmove4(spritesheet,rfhe);
-             // right foot full extension
-             sf::IntRect rffe(870,0, 210, 200);
-             sf::Sprite charmove5(spritesheet,rffe);
-             // Idle
-             sf::IntRect idle(1090,0, 210, 200);
-             sf::Sprite charmove6(spritesheet, idle);
-
-        }
-     
-        //draw sprites  
-        window.clear(); 
-        // window.draw(pointCounter);
-        window.draw(gameBorder);
-        for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
-            window.draw(*it);
-        } 
-        // window.draw(oclockSprite);
-        // window.draw(heartSprite);
-        // window.draw(boulderSprite);
-        // window.draw(stumpSprite);
-        // window.draw(rscrollSprite);
-        // window.draw(gscrollSprite);
-        // window.draw(yscrollSprite);
-        window.draw(sprite);
-        window.draw(points);
-        window.display();
     }
     return 0;
 }
