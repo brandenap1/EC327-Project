@@ -23,7 +23,12 @@ int main() {
     // window
     sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu");
 
-    // border
+    // dimensions for gamescreen border
+    sf::RectangleShape gameBorder(sf::Vector2f(borderSize.x,borderSize.y));
+    gameBorder.setPosition(borderEndx, borderEndy);
+    gameBorder.setFillColor(sf::Color::Black);
+    gameBorder.setOutlineThickness(5);
+    gameBorder.setOutlineColor(sf::Color::White);
     sf::Vector2f borderSize;
     float borderEndx = 80.f;
     float borderEndy = 80.f;
@@ -37,46 +42,41 @@ int main() {
     sf::Sprite sprite(spritesheet,SourceSprite);
     sprite.setPosition(310,1000);
     sprite.setScale(0.8,0.8);
+
     //spritesheet for game items
     sf::Texture itemsheet;
     itemsheet.loadFromFile("itemsspritesheetcropped.png");
 
-
     //Items to be moved
-    // //clock item
-    sf::IntRect itemSourceSprite(30,185,90,90);
-    // //heart item
-    // sf::IntRect itemSourceSprite(145,185,90,90);
-    // //boulder item
-    // sf::IntRect itemSourceSprite(620,185,110,110);
-    // //stump item
-    // sf::IntRect itemSourceSprite(760,185,110,110);
-    //red scroll item (least points - slowest)
-    // sf::IntRect itemSourceSprite(920,175,70,105);
-    // //green scroll item (more points - faster)
-    // sf::IntRect itemSourceSprite(1005,175,70,105);
-    // //yellow scroll item (most points - fastest)
-    // sf::IntRect itemSourceSprite(1090,175,70,105);
+    //clock item
+    sf::IntRect oclock(30,185,90,90);
+    sf::Sprite oclockSprite(itemsheet,oclock);
+    oclockSprite.setPosition(50,100);
+    //heart item
+    sf::IntRect heart(145,185,90,90);
+    sf::Sprite heartSprite(itemsheet,heart);
+    heartSprite.setPosition(170,100);
+    //boulder item
+    sf::IntRect boulder(620,185,110,110);
+    sf::Sprite boulderSprite(itemsheet,boulder);
+    boulderSprite.setPosition(290,100);
+    //stump item
+    sf::IntRect stump(760,185,110,110);
+    sf::Sprite stumpSprite(itemsheet,stump);
+    stumpSprite.setPosition(410,100);
+    // red scroll item (least points - slowest)
+    sf::IntRect rscroll(920,175,70,105);
+    sf::Sprite rscrollSprite(itemsheet,rscroll);
+    rscrollSprite.setPosition(530,100);
+    //green scroll item (more points - faster)
+    sf::IntRect gscroll(1005,175,70,105);
+    sf::Sprite gscrollSprite(itemsheet,gscroll);
+    gscrollSprite.setPosition(740,100);
+    //yellow scroll item (most points - fastest)
+    sf::IntRect yscroll(1090,175,70,105);
+    sf::Sprite yscrollSprite(itemsheet,yscroll);
+    yscrollSprite.setPosition(50,220);
     
-    sf::Sprite itemsprite(itemsheet,itemSourceSprite);
-
-
-    //dimensions for gamescreen border
-
-    sf::RectangleShape gameBorder(sf::Vector2f(borderSize.x,borderSize.y));
-    gameBorder.setPosition(borderEndx, borderEndy);
-    gameBorder.setFillColor(sf::Color::Black);
-    gameBorder.setOutlineThickness(5);
-    gameBorder.setOutlineColor(sf::Color::White);
-
-
-    // sprite
-    sf::Texture spritesheet;
-    spritesheet.loadFromFile("charspritescropped.png");
-    sf::IntRect SourceSprite(0,0, 210, 200);
-    sf::Sprite sprite(spritesheet,SourceSprite);
-    sprite.setScale(0.8,0.8);
-
     //time for animation trigger
     sf::Clock clock;
     std::cout.precision(18);
@@ -194,7 +194,13 @@ int main() {
         window.clear(); 
         window.draw(pointCounter);
         window.draw(gameBorder); 
-        window.draw(itemsprite); 
+        window.draw(oclockSprite);
+        window.draw(heartSprite);
+        window.draw(boulderSprite);
+        window.draw(stumpSprite);
+        window.draw(rscrollSprite);
+        window.draw(gscrollSprite);
+        window.draw(yscrollSprite);
         window.draw(sprite);
         window.draw(points);
         window.display();
