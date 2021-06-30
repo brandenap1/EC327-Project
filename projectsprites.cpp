@@ -17,6 +17,7 @@
 
 using std::string;
 using std::to_string;
+using std::fmod;
 
 bool CheckCollision(sf::Sprite player, sf::Sprite item) {
     float proximity;
@@ -74,7 +75,6 @@ int main() {
     infMode.setPosition(310,700);
     mainmenuSprites.push_back(infMode);
 
-
     //spritesheet for menu options during game
     sf::Texture optionsheet;
     optionsheet.loadFromFile("menuoptionscropped.png"); 
@@ -90,20 +90,23 @@ int main() {
     sf::IntRect home(650,310,300,300);
     sf::Sprite homeSprite(optionsheet,home);
     homeSprite.scale(0.25,0.25);
-    homeSprite.setPosition(380,500);
+    homeSprite.setPosition(380,300);
     pausemenuSprites.push_back(homeSprite);
     //cancel button (play)
     sf::IntRect play(930,310,300,300);
     sf::Sprite playSprite(optionsheet,play);
     playSprite.scale(0.25,0.25);
-    playSprite.setPosition(470,300);
+    playSprite.setPosition(470,105);
     pausemenuSprites.push_back(playSprite);
+    
     //spritesheet for game items
     sf::Texture itemsheet;
     itemsheet.loadFromFile("itemsspritesheetcropped.png"); 
 
     std::vector<sf::Sprite> onscreenSprites;
     //Items to be moved
+    int x = 0, y = 0;
+    int count = 0;
     //clock item
     sf::IntRect oclock(30,185,90,90);
     sf::Sprite oclockSprite(itemsheet,oclock);
@@ -130,28 +133,20 @@ int main() {
     rscrollSprite.setPosition(530,100);
     onscreenSprites.push_back(rscrollSprite);
     //green scroll item (more points - faster)
-    sf::IntRect gscroll(1005,175,70,105);
-    sf::Sprite gscrollSprite(itemsheet,gscroll);
-    gscrollSprite.setPosition(740,100);
-    onscreenSprites.push_back(gscrollSprite);
-    //yellow scroll item (most points - fastest)
-    sf::IntRect yscroll(1090,175,70,105);
+    sf::IntRect yscroll(1005,175,70,105);
     sf::Sprite yscrollSprite(itemsheet,yscroll);
-    yscrollSprite.setPosition(50,220);
+    yscrollSprite.setPosition(740,100);
     onscreenSprites.push_back(yscrollSprite);
+    //yellow scroll item (most points - fastest)
+    sf::IntRect gscroll(1090,175,70,105);
+    sf::Sprite gscrollSprite(itemsheet,gscroll);
+    gscrollSprite.setPosition(50,220);
+    onscreenSprites.push_back(gscrollSprite);
 
     //time for animation trigger
     sf::Clock clock;
-    std::cout.precision(18);
   
     // point counter
-    // border (may no longer be necessary)
-    // sf::RectangleShape pointCounter(sf::Vector2f(100, 50));
-    // pointCounter.setPosition(660, 50);
-    // pointCounter.setFillColor(sf::Color::Black);
-    // pointCounter.setOutlineThickness(5);
-    // pointCounter.setOutlineColor(sf::Color::White);
-    // points
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
@@ -165,10 +160,14 @@ int main() {
     pauseText.setFont(font);
     pauseText.setCharacterSize(60);
     pauseText.setFillColor(sf::Color::Red);
-    pauseText.setPosition(324, 400);
+    pauseText.setPosition(324, 200);
+    
+    //bool values for game state
     bool mainMenu = true;
     bool pauseMenu = false;
     bool gameScreen = false;
+
+    window.setFramerateLimit(200);
 
     while (window.isOpen())
     {
@@ -214,12 +213,12 @@ int main() {
             }
             window.display();
             sf::Sprite inf = mainmenuSprites.at(1);
-            sf::Sprite time = mainmenuSprites.at(0);
+            sf::Sprite timed = mainmenuSprites.at(0);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                 //mouse coords
                 sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
                 //sprite bounds
-                sf::FloatRect timeBounds = time.getGlobalBounds();
+                sf::FloatRect timeBounds = timed.getGlobalBounds();
                 sf::FloatRect infBounds = inf.getGlobalBounds();
                 //check click
                 if (timeBounds.contains(mouse_pos)) {
@@ -299,6 +298,18 @@ int main() {
                 sprite.setTextureRect(SourceSprite);
                 clock.restart();
             }
+
+            // item movement
+            if (count % 200 == 0) {
+                x = 337;
+                y = 0;
+                gscrollSprite.setPosition(x, y);
+            }
+            gscrollSprite.setPosition(gscrollSprite.getPosition().x, gscrollSprite.getPosition().y + 3);
+            // y += 3;
+            count++;
+
+
             // adding points
             int collisions = 0;
             // if (borders_collide == true)
@@ -345,8 +356,8 @@ int main() {
             // window.draw(boulderSprite);
             // window.draw(stumpSprite);
             // window.draw(rscrollSprite);
-            // window.draw(gscrollSprite);
             // window.draw(yscrollSprite);
+            window.draw(gscrollSprite);
             window.draw(pauseSprite);
             window.draw(sprite);
             window.draw(points);
