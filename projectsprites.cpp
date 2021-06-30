@@ -1,3 +1,4 @@
+
 // Copyright 2021 Branden Applewhite bja955@bu.edu | Chris Gough cwgough@bu.edu
 
 
@@ -17,11 +18,27 @@
 using std::string;
 using std::to_string;
 
+bool CheckCollision(sf::Sprite player, sf::Sprite item) {
+    float proximity;
+    float basex;
+    float basey;
+    basex = (player.getPosition().x) - (item.getPosition().x);
+    basey = (player.getPosition().y) - (item.getPosition().y);
+    proximity = abs( sqrt( pow(basex,2) + pow(basey,2)));
+    proximity -= player.getLocalBounds().height / 2;
+    proximity -= item.getLocalBounds().height / 2;
+    //collision
+    if(proximity <= 0)
+        return true;
+    //no collision
+    return false;
+}
 
 int main() {
   
     // window
-    sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu");
+
+    sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu | jsevilla@bu.edu");
 
     // dimensions for gamescreen border
     sf::Vector2f borderSize;
@@ -47,6 +64,7 @@ int main() {
     sf::Texture itemsheet;
     itemsheet.loadFromFile("itemsspritesheetcropped.png");
 
+    std::vector<sf::Sprite> onscreenSprites;
     //Items to be moved
     //clock item
     sf::IntRect oclock(30,185,90,90);
@@ -56,27 +74,32 @@ int main() {
     sf::IntRect heart(145,185,90,90);
     sf::Sprite heartSprite(itemsheet,heart);
     heartSprite.setPosition(170,100);
+    onscreenSprites.push_back(heartSprite);
     //boulder item
     sf::IntRect boulder(620,185,110,110);
     sf::Sprite boulderSprite(itemsheet,boulder);
     boulderSprite.setPosition(290,100);
+    onscreenSprites.push_back(boulderSprite);
     //stump item
     sf::IntRect stump(760,185,110,110);
     sf::Sprite stumpSprite(itemsheet,stump);
     stumpSprite.setPosition(410,100);
+    onscreenSprites.push_back(stumpSprite);    
     // red scroll item (least points - slowest)
     sf::IntRect rscroll(920,175,70,105);
     sf::Sprite rscrollSprite(itemsheet,rscroll);
     rscrollSprite.setPosition(530,100);
+    onscreenSprites.push_back(rscrollSprite);
     //green scroll item (more points - faster)
     sf::IntRect gscroll(1005,175,70,105);
     sf::Sprite gscrollSprite(itemsheet,gscroll);
     gscrollSprite.setPosition(740,100);
+    onscreenSprites.push_back(gscrollSprite);
     //yellow scroll item (most points - fastest)
     sf::IntRect yscroll(1090,175,70,105);
     sf::Sprite yscrollSprite(itemsheet,yscroll);
     yscrollSprite.setPosition(50,220);
-    
+    onscreenSprites.push_back(yscrollSprite);
     //time for animation trigger
     sf::Clock clock;
     std::cout.precision(18);
@@ -112,7 +135,15 @@ int main() {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
             sprite.move(0.f,2.f);
         }
+        for (auto it = onscreenSprites.begin(); it != onscreenSprites.end();) {
+            sf::Sprite curr = *it;
+            if (CheckCollision(sprite, curr)) {
+                it = onscreenSprites.erase(it);
+            }
 
+            else
+                it++; 
+        }
         //Border Collisions
         if (sprite.getPosition().x <=  borderEndx) {
             sprite.move(2.f,0.f);
@@ -131,21 +162,10 @@ int main() {
         //     case time 
         if (clock.getElapsedTime().asSeconds() > 0.1f) {
             if(SourceSprite.left == 1050) {
-                // SourceSprite.left -= 210;
-                // direction = 'b';
                 SourceSprite.left = 0;
             }
             else {
-                // if(direction == 'f') {
-                // SourceSprite.left += 210;
-                // }
-                // else if (direction == 'b') {
-                //     if(SourceSprite.left == 0){
-                        SourceSprite.left += 210;
-            //             direction = 'f';
-            //         }
-            //         SourceSprite.left -= 210;
-            //     }
+                SourceSprite.left += 210;
             }
 
             
@@ -192,14 +212,17 @@ int main() {
         //draw sprites  
         window.clear(); 
         // window.draw(pointCounter);
-        window.draw(gameBorder); 
-        window.draw(oclockSprite);
-        window.draw(heartSprite);
-        window.draw(boulderSprite);
-        window.draw(stumpSprite);
-        window.draw(rscrollSprite);
-        window.draw(gscrollSprite);
-        window.draw(yscrollSprite);
+        window.draw(gameBorder);
+        for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
+            window.draw(*it);
+        } 
+        // window.draw(oclockSprite);
+        // window.draw(heartSprite);
+        // window.draw(boulderSprite);
+        // window.draw(stumpSprite);
+        // window.draw(rscrollSprite);
+        // window.draw(gscrollSprite);
+        // window.draw(yscrollSprite);
         window.draw(sprite);
         window.draw(points);
         window.display();
