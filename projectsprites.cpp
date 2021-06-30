@@ -16,6 +16,7 @@
 
 using std::string;
 using std::to_string;
+using std::fmod;
 
 
 int main() {
@@ -48,6 +49,9 @@ int main() {
     itemsheet.loadFromFile("itemsspritesheetcropped.png");
 
     //Items to be moved
+    int x = 0, y = 0;
+    int count = 0;
+    // sf::Clock count;
     //clock item
     sf::IntRect oclock(30,185,90,90);
     sf::Sprite oclockSprite(itemsheet,oclock);
@@ -69,26 +73,18 @@ int main() {
     sf::Sprite rscrollSprite(itemsheet,rscroll);
     rscrollSprite.setPosition(530,100);
     //green scroll item (more points - faster)
-    sf::IntRect gscroll(1005,175,70,105);
+    sf::IntRect gscroll(1090,175,70,105);
     sf::Sprite gscrollSprite(itemsheet,gscroll);
-    gscrollSprite.setPosition(740,100);
+    gscrollSprite.setPosition(650,100);
     //yellow scroll item (most points - fastest)
-    sf::IntRect yscroll(1090,175,70,105);
+    sf::IntRect yscroll(1005,175,70,105);
     sf::Sprite yscrollSprite(itemsheet,yscroll);
-    yscrollSprite.setPosition(50,220);
+    // yscrollSprite.setPosition(50,220);
     
     //time for animation trigger
     sf::Clock clock;
-    std::cout.precision(18);
   
     // point counter
-    // border (may no longer be necessary)
-    // sf::RectangleShape pointCounter(sf::Vector2f(100, 50));
-    // pointCounter.setPosition(660, 50);
-    // pointCounter.setFillColor(sf::Color::Black);
-    // pointCounter.setOutlineThickness(5);
-    // pointCounter.setOutlineColor(sf::Color::White);
-    // points
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
@@ -97,61 +93,58 @@ int main() {
     points.setFillColor(sf::Color::Red);
     points.setPosition(650, 5);
 
+    window.setFramerateLimit(200);
     while (window.isOpen())
     {
         //Character moves
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            sprite.move(2.f,0.f);
+            sprite.move(4.f,0.f);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            sprite.move(-2.f,0.f);
+            sprite.move(-4.f,0.f);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            sprite.move(0.f,-2.f);
+            sprite.move(0.f,-4.f);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            sprite.move(0.f,2.f);
+            sprite.move(0.f,4.f);
         }
 
         //Border Collisions
         if (sprite.getPosition().x <=  borderEndx) {
-            sprite.move(2.f,0.f);
+            sprite.move(4.f,0.f);
         }
         if (sprite.getPosition().y <= borderEndy ) {
-            sprite.move(0.f,2.f);
+            sprite.move(0.f,4.f);
         }
         if (sprite.getPosition().x + sprite.getLocalBounds().width >= window.getSize().x ) {
-            sprite.move(-2.f,0.f);
+            sprite.move(-4.f,0.f);
         }
         if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
-            sprite.move(0.f,-2.f);
+            sprite.move(0.f,-4.f);
         }
 
-
-        //     case time 
+        // case time 
         if (clock.getElapsedTime().asSeconds() > 0.1f) {
             if(SourceSprite.left == 1050) {
-                // SourceSprite.left -= 210;
-                // direction = 'b';
                 SourceSprite.left = 0;
             }
             else {
-                // if(direction == 'f') {
-                // SourceSprite.left += 210;
-                // }
-                // else if (direction == 'b') {
-                //     if(SourceSprite.left == 0){
-                        SourceSprite.left += 210;
-            //             direction = 'f';
-            //         }
-            //         SourceSprite.left -= 210;
-            //     }
+                SourceSprite.left += 210;
             }
-
-            
             sprite.setTextureRect(SourceSprite);
             clock.restart();
         }
+
+        // item movement
+        if (count % 200 == 0) {
+            x = 337;
+            y = 0;
+            yscrollSprite.setPosition(x, y);
+        }
+        yscrollSprite.setPosition(yscrollSprite.getPosition().x, yscrollSprite.getPosition().y + 3);
+        // y += 3;
+        count++;
 
         // adding points
         int collisions = 0;
@@ -193,12 +186,12 @@ int main() {
         window.clear(); 
         // window.draw(pointCounter);
         window.draw(gameBorder); 
-        window.draw(oclockSprite);
-        window.draw(heartSprite);
-        window.draw(boulderSprite);
-        window.draw(stumpSprite);
-        window.draw(rscrollSprite);
-        window.draw(gscrollSprite);
+        // window.draw(oclockSprite);
+        // window.draw(heartSprite);
+        // window.draw(boulderSprite);
+        // window.draw(stumpSprite);
+        // window.draw(rscrollSprite);
+        // window.draw(gscrollSprite);
         window.draw(yscrollSprite);
         window.draw(sprite);
         window.draw(points);
