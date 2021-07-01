@@ -1,3 +1,4 @@
+
 // Copyright 2021 Branden Applewhite bja955@bu.edu | Chris Gough cwgough@bu.edu | Jose Sevilla jsevilla@bu.edu
 
 
@@ -53,9 +54,9 @@ int main() {
     borderSize.y = window.getSize().y - 160;
     sf::RectangleShape gameBorder(sf::Vector2f(borderSize.x,borderSize.y));
     gameBorder.setPosition(borderEndx, borderEndy);
-    gameBorder.setFillColor(sf::Color::Black);
-    gameBorder.setOutlineThickness(5);
-    gameBorder.setOutlineColor(sf::Color::White);
+    gameBorder.setFillColor(sf::Color::Transparent);
+    gameBorder.setOutlineThickness(8);
+    gameBorder.setOutlineColor(sf::Color::Black);
 
     //spritesheet for char animations
     sf::Texture spritesheet;
@@ -64,6 +65,14 @@ int main() {
     sf::Sprite sprite(spritesheet,SourceSprite);
     sprite.setPosition(310,1000);
     sprite.setScale(0.8,0.8);
+
+    // spritesheet for main menu background
+    sf::Texture backgroundsheet;
+    backgroundsheet.loadFromFile("gamebackground.png");
+    sf::IntRect background(0,20,202,270);
+    sf::Sprite backgroundSprite(backgroundsheet, background);
+    backgroundSprite.scale(4,4);
+
 
     //spritesheet for main menu
     std::vector<sf::Sprite> mainmenuSprites;
@@ -108,6 +117,11 @@ int main() {
     sf::Texture itemsheet;
     itemsheet.loadFromFile("itemsspritesheetcropped.png"); 
 
+    // vector for top of gameplay sprites
+    std::vector<sf::Sprite> compSprites;
+    compSprites.push_back(pauseSprite);
+
+
     //Items to be moved
     std::vector<sf::Sprite> itemStorage;
     std::vector<sf::Sprite> onscreenSprites;
@@ -122,6 +136,18 @@ int main() {
     sf::IntRect heart(145,185,90,90);
     sf::Sprite heartSprite(itemsheet,heart);
     itemStorage.push_back(heartSprite);
+    sf::Sprite live1(itemsheet,heart);
+    live1.setScale(0.8,0.8);
+    live1.setPosition(260,0);
+    compSprites.push_back(live1);
+    sf::Sprite live2(itemsheet,heart);
+    live2.setScale(0.8,0.8);
+    live2.setPosition(340,0);
+    compSprites.push_back(live2);
+    sf::Sprite live3(itemsheet,heart);
+    live3.setScale(0.8,0.8);
+    live3.setPosition(420,0);
+    compSprites.push_back(live3);
     //boulder item (x4)
     sf::IntRect boulder(620,185,110,110);
     sf::Sprite boulderSprite(itemsheet,boulder);
@@ -171,6 +197,7 @@ int main() {
     bool mainMenu = true;
     bool pauseMenu = false;
     bool gameScreen = false;
+    bool Timed;
 
     window.setFramerateLimit(200);
 
@@ -219,6 +246,20 @@ int main() {
         // Start at main menu
         else if (mainMenu && !pauseMenu && !gameScreen) {
             window.clear();
+            window.draw(backgroundSprite);
+            // item movement
+            if (count % 200 == 0) {
+                x = spawn_loc(generator);
+                y = 0;
+                int which = which_item(generator);
+                itemStorage.at(which).setPosition(x, y);
+                onscreenSprites.push_back(itemStorage.at(which));
+            }
+            count++;
+            for (auto its = onscreenSprites.begin(); its != onscreenSprites.end(); its++) {
+                (*its).setPosition((*its).getPosition().x, (*its).getPosition().y + 3);
+                window.draw(*its);
+            }
             for (auto itr = mainmenuSprites.begin(); itr != mainmenuSprites.end(); itr++) {
                 window.draw(*itr);
             }
@@ -237,6 +278,7 @@ int main() {
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
+                    Timed = true;
                     //play time game mode
                 }
                 else if (infBounds.contains(mouse_pos)) {
@@ -244,6 +286,7 @@ int main() {
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
+                    Timed = false;
                     //play inf game mode
                 }
             }
@@ -383,17 +426,29 @@ int main() {
 
             //draw sprites  
             window.clear();
+            window.draw(backgroundSprite);
             window.draw(gameBorder);
             window.draw(sprite);
             for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
                 (*it).setPosition((*it).getPosition().x, (*it).getPosition().y + 3);
                 window.draw(*it);
-            window.draw(pauseSprite);
-            window.draw(sprite);
             }
+            if (!Timed) {
+                for (auto itv = compSprites.begin(); itv != compSprites.end(); itv++) {
+                    window.draw(*itv);
+                }
+            }
+            else {
+                window.draw(pauseSprite);
+            }
+            window.draw(sprite);
             window.draw(points);
             window.display();
         }
     }
     return 0;
 }
+
+
+
+
