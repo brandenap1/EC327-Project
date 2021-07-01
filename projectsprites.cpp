@@ -40,7 +40,7 @@ int main() {
     std::random_device rd;
     std::mt19937 generator(rd());
     std::uniform_int_distribution<> spawn_loc(80, 730);
-    std::uniform_int_distribution<> which_item(0, 15);
+    std::uniform_int_distribution<> which_item(0, 20);
   
     // window
     sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu | jsevilla@bu.edu");
@@ -113,35 +113,36 @@ int main() {
     std::vector<sf::Sprite> onscreenSprites;
     int x = 0, y = 0;
     int count = 0;
-    //clock item
+    //clock item (x2)
     sf::IntRect oclock(30,185,90,90);
     sf::Sprite oclockSprite(itemsheet,oclock);
-    itemStorage.push_back(oclockSprite);
-    //heart item
+    for (int i = 0; i < 2; i++)
+        itemStorage.push_back(oclockSprite);
+    //heart item (x1)
     sf::IntRect heart(145,185,90,90);
     sf::Sprite heartSprite(itemsheet,heart);
     itemStorage.push_back(heartSprite);
-    //boulder item
+    //boulder item (x4)
     sf::IntRect boulder(620,185,110,110);
     sf::Sprite boulderSprite(itemsheet,boulder);
     for (int i = 0; i < 4; i++)
         itemStorage.push_back(boulderSprite);
-    //stump item
+    //stump item (x8)
     sf::IntRect stump(760,185,110,110);
     sf::Sprite stumpSprite(itemsheet,stump);
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 8; i++)
         itemStorage.push_back(stumpSprite);    
-    // red scroll item (least points - slowest)
+    // red scroll item (x3)
     sf::IntRect rscroll(920,175,70,105);
     sf::Sprite rscrollSprite(itemsheet,rscroll);
     for (int i = 0; i < 3; i++)
         itemStorage.push_back(rscrollSprite);
-    //green scroll item (more points - faster)
+    //green scroll item (x2)
     sf::IntRect gscroll(1090,175,70,105);
     sf::Sprite gscrollSprite(itemsheet,gscroll);
     for (int i = 0; i < 2; i++)
         itemStorage.push_back(gscrollSprite);
-    //yellow scroll item (most points - fastest)
+    //yellow scroll item (x1)
     sf::IntRect yscroll(1005,175,70,105);
     sf::Sprite yscrollSprite(itemsheet,yscroll);
     itemStorage.push_back(yscrollSprite);
@@ -255,27 +256,43 @@ int main() {
         }
         // Play Game
         else if (!pauseMenu && !mainMenu && gameScreen) {
+
             //Character moves
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                sprite.move(2.f,0.f);
+                sprite.move(4.f,0.f);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                sprite.move(-2.f,0.f);
+                sprite.move(-4.f,0.f);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                sprite.move(0.f,-2.f);
+                sprite.move(0.f,-4.f);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                sprite.move(0.f,2.f);
+                sprite.move(0.f,4.f);
             }
 
             // Item collisions
             for (auto it = onscreenSprites.begin(); it != onscreenSprites.end();) {
                 sf::Sprite curr = *it;
                 if (CheckCollision(sprite, curr)) {
-                    // if (curr == itemStorage.at(11)) {
-                    //     scroll_hits += 1;
-                    // }
+                    if (curr.getTextureRect() == itemStorage.at(15).getTextureRect()) {
+                        scroll_hits += 1;
+                    } else if (curr.getTextureRect() == itemStorage.at(18).getTextureRect()) {
+                        scroll_hits += 2;
+                    } else if (curr.getTextureRect() == itemStorage.at(20).getTextureRect()) {
+                        scroll_hits += 3;
+                    } else if (curr.getTextureRect() == itemStorage.at(7).getTextureRect()) {
+                        // num_hearts -= 1;
+                        // make the boy flash red
+                    } else if (curr.getTextureRect() == itemStorage.at(3).getTextureRect()) {
+                        // num_hearts -= 1;
+                        // make the boy flash red
+                        scroll_hits -= 2;
+                    } else if (curr.getTextureRect() == itemStorage.at(2).getTextureRect()) {
+                        // num_hearts += 1;
+                    } else {
+                        // time_factor *= 1.15;
+                    }
                     onscreenSprites.erase(it);
                 }
                 else
@@ -298,16 +315,16 @@ int main() {
 
             //Border Collisions
             if (sprite.getPosition().x <=  borderEndx) {
-                sprite.move(2.f,0.f);
+                sprite.move(4.f,0.f);
             }
             if (sprite.getPosition().y <= borderEndy ) {
-                sprite.move(0.f,2.f);
+                sprite.move(0.f,4.f);
             }
             if (sprite.getPosition().x + sprite.getLocalBounds().width >= window.getSize().x ) {
-                sprite.move(-2.f,0.f);
+                sprite.move(-4.f,0.f);
             }
             if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
-                sprite.move(0.f,-2.f);
+                sprite.move(0.f,-4.f);
             }
 
             // case time 
@@ -332,10 +349,7 @@ int main() {
             }
             count++;
 
-
             // adding points
-            // if (borders_collide == true)
-            //   scroll_hits += (amount of points)
             string numpoints = to_string(scroll_hits);
             if (numpoints.size() < 2)
                 numpoints = "0" + numpoints;
