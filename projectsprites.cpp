@@ -24,6 +24,7 @@ bool CheckCollision(sf::Sprite player, sf::Sprite item) {
     float basey;
     basex = (player.getPosition().x) - (item.getPosition().x);
     basey = (player.getPosition().y) - (item.getPosition().y);
+    // is abs(sqrt(pow())) really necessary
     proximity = abs( sqrt( pow(basex,2) + pow(basey,2)));
     proximity -= player.getLocalBounds().height / 2;
     proximity -= item.getLocalBounds().height / 2;
@@ -135,18 +136,9 @@ int main() {
     sf::IntRect heart(145,185,90,90);
     sf::Sprite heartSprite(itemsheet,heart);
     itemStorage.push_back(heartSprite);
-    sf::Sprite live1(itemsheet,heart);
-    live1.setScale(0.8,0.8);
-    live1.setPosition(260,0);
-    // compSprites.push_back(live1);
-    sf::Sprite live2(itemsheet,heart);
-    live2.setScale(0.8,0.8);
-    live2.setPosition(340,0);
-    // compSprites.push_back(live2);
-    sf::Sprite live3(itemsheet,heart);
-    live3.setScale(0.8,0.8);
-    live3.setPosition(420,0);
-    // compSprites.push_back(live3);
+    //lives (x3)
+    sf::Sprite life(itemsheet,heart);
+    life.setScale(0.8,0.8);
     //boulder item (x4)
     sf::IntRect boulder(620,185,110,110);
     sf::Sprite boulderSprite(itemsheet,boulder);
@@ -200,7 +192,6 @@ int main() {
     gameoverText.setPosition(244, 200);
     gameoverText.setString("Game Over");
 
-
     //bool values for game state
     bool mainMenu = true;
     bool pauseMenu = false;
@@ -245,6 +236,7 @@ int main() {
                     //play
                 }
             }
+            
             sf::Event event;
             while (window.pollEvent(event))
             {
@@ -254,6 +246,8 @@ int main() {
         }
         // Start at main menu
         else if (mainMenu && !pauseMenu && !gameScreen) {
+
+            // what's the purpose of this code?
             backgroundSprite.setColor(sf::Color::White);
             gameBorder.setFillColor(sf::Color::Transparent);
             sprite.setColor(sf::Color::White);
@@ -264,6 +258,7 @@ int main() {
             for (auto itw = compSprites.begin(); itw != compSprites.end(); itw++) {
                 (*itw).setColor(sf::Color::White);
             }
+
             window.clear();
             window.draw(backgroundSprite);
             compSprites.clear();
@@ -298,22 +293,20 @@ int main() {
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
-                    Timed = true;
-                    //play time game mode
+                    Timed = true;  //play time game mode
                 }
                 else if (infBounds.contains(mouse_pos)) {
                     window.clear();
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
-                    Timed = false;
+                    Timed = false;  //play inf game mode
                     compSprites.push_back(pauseSprite);
-                    compSprites.push_back(live1);
-                    compSprites.push_back(live2);
-                    compSprites.push_back(live3);
-                    //play inf game mode
+                    for (int i = 0; i < 3; i++)
+                        compSprites.push_back(life);
                 }
             }
+
             sf::Event event;
             while (window.pollEvent(event))
             {
@@ -350,12 +343,16 @@ int main() {
                             scroll_hits += 3;
                         } else if (curr.getTextureRect() == itemStorage.at(7).getTextureRect()) {
                             // num_hearts -= 1;
-                            compSprites.pop_back();
                             sprite.setColor(sf::Color::Red);
+                            if (not(Timed)) {
+                                compSprites.pop_back();
+                            }
                         } else if (curr.getTextureRect() == itemStorage.at(3).getTextureRect()) {
                             // num_hearts -= 1;
-                            compSprites.pop_back();
                             sprite.setColor(sf::Color::Red);
+                            if (not(Timed)) {
+                                compSprites.pop_back();
+                            }
                             scroll_hits -= 2;
                         } else if (curr.getTextureRect() == itemStorage.at(2).getTextureRect()) {
                             // num_hearts += 1;
@@ -368,7 +365,7 @@ int main() {
                         it++;
                 }
 
-                if (compSprites.size() == 1) { //No Lives
+                if (compSprites.size() == 1) {  //No Lives
                     gameOver = true;
                 }
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
@@ -490,7 +487,10 @@ int main() {
                 window.draw(*it);
             }
             if (!Timed) {
+                int p = 260;
                 for (auto itv = compSprites.begin(); itv != compSprites.end(); itv++) {
+                    (*itv).setPosition(p, 0);
+                    p += 80;
                     window.draw(*itv);
                 }
             }
