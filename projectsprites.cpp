@@ -171,7 +171,6 @@ int main() {
     bool pauseMenu = false;
     bool gameScreen = false;
 
-    bool mainMenu = true;
     window.setFramerateLimit(200);
 
     while (window.isOpen())
@@ -209,6 +208,12 @@ int main() {
                     //play
                 }
             }
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    window.close();
+            }
         }
         // Start at main menu
         else if (mainMenu && !pauseMenu && !gameScreen) {
@@ -240,6 +245,12 @@ int main() {
                     pauseMenu = false;
                     //play inf game mode
                 }
+            }
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    window.close();
             }
         }
         // Play Game
