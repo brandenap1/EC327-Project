@@ -1,4 +1,3 @@
-
 // Copyright 2021 Branden Applewhite bja955@bu.edu | Chris Gough cwgough@bu.edu | Jose Sevilla jsevilla@bu.edu
 
 
@@ -119,7 +118,7 @@ int main() {
 
     // vector for top of gameplay sprites
     std::vector<sf::Sprite> compSprites;
-    compSprites.push_back(pauseSprite);
+    // compSprites.push_back(pauseSprite);
 
 
     //Items to be moved
@@ -139,15 +138,15 @@ int main() {
     sf::Sprite live1(itemsheet,heart);
     live1.setScale(0.8,0.8);
     live1.setPosition(260,0);
-    compSprites.push_back(live1);
+    // compSprites.push_back(live1);
     sf::Sprite live2(itemsheet,heart);
     live2.setScale(0.8,0.8);
     live2.setPosition(340,0);
-    compSprites.push_back(live2);
+    // compSprites.push_back(live2);
     sf::Sprite live3(itemsheet,heart);
     live3.setScale(0.8,0.8);
     live3.setPosition(420,0);
-    compSprites.push_back(live3);
+    // compSprites.push_back(live3);
     //boulder item (x4)
     sf::IntRect boulder(620,185,110,110);
     sf::Sprite boulderSprite(itemsheet,boulder);
@@ -193,11 +192,21 @@ int main() {
     pauseText.setFillColor(sf::Color::Red);
     pauseText.setPosition(324, 200);
     
+    // game over text
+    sf::Text gameoverText;
+    gameoverText.setFont(font);
+    gameoverText.setCharacterSize(60);
+    gameoverText.setFillColor(sf::Color::Red);
+    gameoverText.setPosition(244, 200);
+    gameoverText.setString("Game Over");
+
+
     //bool values for game state
     bool mainMenu = true;
     bool pauseMenu = false;
     bool gameScreen = false;
     bool Timed;
+    bool gameOver = false;
 
     window.setFramerateLimit(200);
 
@@ -247,6 +256,7 @@ int main() {
         else if (mainMenu && !pauseMenu && !gameScreen) {
             window.clear();
             window.draw(backgroundSprite);
+            compSprites.clear();
             // item movement
             if (count % 200 == 0) {
                 x = spawn_loc(generator);
@@ -287,6 +297,10 @@ int main() {
                     gameScreen = true;
                     pauseMenu = false;
                     Timed = false;
+                    compSprites.push_back(pauseSprite);
+                    compSprites.push_back(live1);
+                    compSprites.push_back(live2);
+                    compSprites.push_back(live3);
                     //play inf game mode
                 }
             }
@@ -299,104 +313,123 @@ int main() {
         }
         // Play Game
         else if (!pauseMenu && !mainMenu && gameScreen) {
+            if (!gameOver){
+                //Character moves
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                    sprite.move(4.f,0.f);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+                    sprite.move(-4.f,0.f);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+                    sprite.move(0.f,-4.f);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+                    sprite.move(0.f,4.f);
+                }
 
-            //Character moves
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                sprite.move(4.f,0.f);
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                sprite.move(-4.f,0.f);
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                sprite.move(0.f,-4.f);
-            }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                sprite.move(0.f,4.f);
-            }
-
-            // Item collisions
-            for (auto it = onscreenSprites.begin(); it != onscreenSprites.end();) {
-                sf::Sprite curr = *it;
-                if (CheckCollision(sprite, curr)) {
-                    if (curr.getTextureRect() == itemStorage.at(15).getTextureRect()) {
-                        scroll_hits += 1;
-                    } else if (curr.getTextureRect() == itemStorage.at(18).getTextureRect()) {
-                        scroll_hits += 2;
-                    } else if (curr.getTextureRect() == itemStorage.at(20).getTextureRect()) {
-                        scroll_hits += 3;
-                    } else if (curr.getTextureRect() == itemStorage.at(7).getTextureRect()) {
-                        // num_hearts -= 1;
-                        // make the boy flash red
-                    } else if (curr.getTextureRect() == itemStorage.at(3).getTextureRect()) {
-                        // num_hearts -= 1;
-                        // make the boy flash red
-                        scroll_hits -= 2;
-                    } else if (curr.getTextureRect() == itemStorage.at(2).getTextureRect()) {
-                        // num_hearts += 1;
-                    } else {
-                        // time_factor *= 1.15;
+                // Item collisions
+                for (auto it = onscreenSprites.begin(); it != onscreenSprites.end();) {
+                    sf::Sprite curr = *it;
+                    if (CheckCollision(sprite, curr)) {
+                        if (curr.getTextureRect() == itemStorage.at(15).getTextureRect()) {
+                            scroll_hits += 1;
+                        } else if (curr.getTextureRect() == itemStorage.at(18).getTextureRect()) {
+                            scroll_hits += 2;
+                        } else if (curr.getTextureRect() == itemStorage.at(20).getTextureRect()) {
+                            scroll_hits += 3;
+                        } else if (curr.getTextureRect() == itemStorage.at(7).getTextureRect()) {
+                            // num_hearts -= 1;
+                            compSprites.pop_back();
+                            sprite.setColor(sf::Color::Red);
+                        } else if (curr.getTextureRect() == itemStorage.at(3).getTextureRect()) {
+                            // num_hearts -= 1;
+                            compSprites.pop_back();
+                            sprite.setColor(sf::Color::Red);
+                            scroll_hits -= 2;
+                        } else if (curr.getTextureRect() == itemStorage.at(2).getTextureRect()) {
+                            // num_hearts += 1;
+                        } else {
+                            // time_factor *= 1.15;
+                        }
+                        onscreenSprites.erase(it);
                     }
-                    onscreenSprites.erase(it);
+                    else
+                        it++;
                 }
-                else
-                    it++; 
-            }
 
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                //mouse coords
-                sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-                //sprite bounds
-                sf::FloatRect pauseBounds = pauseSprite.getGlobalBounds();
-                //check click
-                if (pauseBounds.contains(mouse_pos)) {
-                    mainMenu = false;
-                    gameScreen = false;
-                    pauseMenu = true;
-                    //play time game mode
+                if (compSprites.size() == 1) { //No Lives
+                    gameOver = true;
+                }
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                    //mouse coords
+                    sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                    //sprite bounds
+                    sf::FloatRect pauseBounds = pauseSprite.getGlobalBounds();
+                    //check click
+                    if (pauseBounds.contains(mouse_pos)) {
+                        mainMenu = false;
+                        gameScreen = false;
+                        pauseMenu = true;
+                        //play time game mode
+                    }
+                }
+
+                //Border Collisions
+                if (sprite.getPosition().x <=  borderEndx) {
+                    sprite.move(4.f,0.f);
+                }
+                if (sprite.getPosition().y <= borderEndy ) {
+                    sprite.move(0.f,4.f);
+                }
+                if (sprite.getPosition().x + sprite.getLocalBounds().width >= window.getSize().x ) {
+                    sprite.move(-4.f,0.f);
+                }
+                if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
+                    sprite.move(0.f,-4.f);
+                }
+
+                // case time 
+                if (clock.getElapsedTime().asSeconds() > 0.1f) {
+                    sprite.setColor(sf::Color::White);
+                    if(SourceSprite.left == 1050) {
+                        SourceSprite.left = 0;
+                    }
+                    else {
+                        SourceSprite.left += 210;
+                    }
+                    sprite.setTextureRect(SourceSprite);
+                    clock.restart();
+                }
+
+                // item movement
+                if (count % 200 == 0) {
+                    x = spawn_loc(generator);
+                    y = 0;
+                    int which = which_item(generator);
+                    itemStorage.at(which).setPosition(x, y);
+                    onscreenSprites.push_back(itemStorage.at(which));
+                }
+                count++;
+
+                // adding points
+                string numpoints = to_string(scroll_hits);
+                if (numpoints.size() < 2)
+                    numpoints = "0" + numpoints;
+                points.setString(numpoints);
+            }
+            else {
+                backgroundSprite.setColor(sf::Color(255,255,255,128));
+                gameBorder.setFillColor(sf::Color(255,255,255,128));
+                sprite.setColor(sf::Color(255,255,255,128));
+                points.setFillColor(sf::Color(255,255,255,128));               
+                for (auto ity = onscreenSprites.begin(); ity != onscreenSprites.end(); ity++) {
+                    (*ity).setColor(sf::Color(255,255,255,128));
+                }
+                for (auto itw = compSprites.begin(); itw != compSprites.end(); itw++) {
+                    (*itw).setColor(sf::Color(255,255,255,128));
                 }
             }
-
-            //Border Collisions
-            if (sprite.getPosition().x <=  borderEndx) {
-                sprite.move(4.f,0.f);
-            }
-            if (sprite.getPosition().y <= borderEndy ) {
-                sprite.move(0.f,4.f);
-            }
-            if (sprite.getPosition().x + sprite.getLocalBounds().width >= window.getSize().x ) {
-                sprite.move(-4.f,0.f);
-            }
-            if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
-                sprite.move(0.f,-4.f);
-            }
-
-            // case time 
-            if (clock.getElapsedTime().asSeconds() > 0.1f) {
-                if(SourceSprite.left == 1050) {
-                    SourceSprite.left = 0;
-                }
-                else {
-                    SourceSprite.left += 210;
-                }
-                sprite.setTextureRect(SourceSprite);
-                clock.restart();
-            }
-
-            // item movement
-            if (count % 200 == 0) {
-                x = spawn_loc(generator);
-                y = 0;
-                int which = which_item(generator);
-                itemStorage.at(which).setPosition(x, y);
-                onscreenSprites.push_back(itemStorage.at(which));
-            }
-            count++;
-
-            // adding points
-            string numpoints = to_string(scroll_hits);
-            if (numpoints.size() < 2)
-                numpoints = "0" + numpoints;
-            points.setString(numpoints);
 
             sf::Event event;
             while (window.pollEvent(event))
@@ -423,7 +456,6 @@ int main() {
                  sf::IntRect idle(1090,0, 210, 200);
                  sf::Sprite charmove6(spritesheet, idle);
             }
-
             //draw sprites  
             window.clear();
             window.draw(backgroundSprite);
@@ -443,12 +475,13 @@ int main() {
             }
             window.draw(sprite);
             window.draw(points);
+            if (gameOver)
+                window.draw(gameoverText);
             window.display();
         }
     }
     return 0;
 }
-
 
 
 
