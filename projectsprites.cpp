@@ -215,6 +215,28 @@ int main() {
         // Change to pause menu
         if (pauseMenu && !mainMenu && !gameScreen) {
             window.clear();
+            backgroundSprite.setColor(sf::Color(255,255,255,128));
+            gameBorder.setFillColor(sf::Color(255,255,255,128));
+            sprite.setColor(sf::Color(255,255,255,128));
+            points.setFillColor(sf::Color(255,255,255,128));               
+            for (auto ity = onscreenSprites.begin(); ity != onscreenSprites.end(); ity++) {
+                (*ity).setColor(sf::Color(255,255,255,128));
+            }
+            for (auto itw = compSprites.begin(); itw != compSprites.end(); itw++) {
+                (*itw).setColor(sf::Color(255,255,255,128));
+            }
+            window.draw(backgroundSprite);
+            window.draw(gameBorder);
+            window.draw(sprite);
+            for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
+                (*it).setPosition((*it).getPosition().x, (*it).getPosition().y + 3);
+                window.draw(*it);
+            }
+            if (!Timed) {
+                for (auto itv = compSprites.begin(); itv != compSprites.end(); itv++) {
+                    window.draw(*itv);
+                }
+            }
             for (auto itrs = pausemenuSprites.begin(); itrs != pausemenuSprites.end(); itrs++) {
                 window.draw(*itrs);
             }
@@ -358,7 +380,14 @@ int main() {
                             sprite.setColor(sf::Color::Red);
                             scroll_hits -= 2;
                         } else if (curr.getTextureRect() == itemStorage.at(2).getTextureRect()) {
-                            // num_hearts += 1;
+                            switch(compSprites.size() - 1) {
+                                case 1:
+                                    compSprites.push_back(live2);
+                                    break;
+                                case 2:
+                                    compSprites.push_back(live3);
+                                    break;
+                            }
                         } else {
                             // time_factor *= 1.15;
                         }
