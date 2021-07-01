@@ -14,10 +14,10 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <random>
 
 using std::string;
 using std::to_string;
-using std::fmod;
 
 bool CheckCollision(sf::Sprite player, sf::Sprite item) {
     float proximity;
@@ -36,6 +36,12 @@ bool CheckCollision(sf::Sprite player, sf::Sprite item) {
 }
 
 int main() {
+
+    // prng setup
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::uniform_int_distribution<> spawn_loc(80, 730);
+    std::uniform_int_distribution<> which_item(0, 15);
   
     // window
     sf::RenderWindow window(sf::VideoMode(810, 1080), "bja955@bu.edu | cwgough@bu.edu | jsevilla@bu.edu");
@@ -79,50 +85,49 @@ int main() {
     sf::Texture itemsheet;
     itemsheet.loadFromFile("itemsspritesheetcropped.png");
 
-    std::vector<sf::Sprite> onscreenSprites;
     //Items to be moved
+    std::vector<sf::Sprite> itemStorage;
+    std::vector<sf::Sprite> onscreenSprites;
     int x = 0, y = 0;
     int count = 0;
-    // sf::Clock count;
     //clock item
     sf::IntRect oclock(30,185,90,90);
     sf::Sprite oclockSprite(itemsheet,oclock);
-    oclockSprite.setPosition(50,100);
-    onscreenSprites.push_back(oclockSprite);
+    itemStorage.push_back(oclockSprite);
     //heart item
     sf::IntRect heart(145,185,90,90);
     sf::Sprite heartSprite(itemsheet,heart);
-    heartSprite.setPosition(170,100);
-    onscreenSprites.push_back(heartSprite);
+    itemStorage.push_back(heartSprite);
     //boulder item
     sf::IntRect boulder(620,185,110,110);
     sf::Sprite boulderSprite(itemsheet,boulder);
-    boulderSprite.setPosition(290,100);
-    onscreenSprites.push_back(boulderSprite);
+    for (int i = 0; i < 4; i++)
+        itemStorage.push_back(boulderSprite);
     //stump item
     sf::IntRect stump(760,185,110,110);
     sf::Sprite stumpSprite(itemsheet,stump);
-    stumpSprite.setPosition(410,100);
-    onscreenSprites.push_back(stumpSprite);    
+    for (int i = 0; i < 4; i++)
+        itemStorage.push_back(stumpSprite);    
     // red scroll item (least points - slowest)
     sf::IntRect rscroll(920,175,70,105);
     sf::Sprite rscrollSprite(itemsheet,rscroll);
-    rscrollSprite.setPosition(530,100);
-    onscreenSprites.push_back(rscrollSprite);
+    for (int i = 0; i < 3; i++)
+        itemStorage.push_back(rscrollSprite);
     //green scroll item (more points - faster)
     sf::IntRect gscroll(1090,175,70,105);
     sf::Sprite gscrollSprite(itemsheet,gscroll);
-    gscrollSprite.setPosition(650,100);
-    onscreenSprites.push_back(gscrollSprite);
+    for (int i = 0; i < 2; i++)
+        itemStorage.push_back(gscrollSprite);
     //yellow scroll item (most points - fastest)
     sf::IntRect yscroll(1005,175,70,105);
     sf::Sprite yscrollSprite(itemsheet,yscroll);
-    // yscrollSprite.setPosition(50,220);
-    onscreenSprites.push_back(yscrollSprite);
+    itemStorage.push_back(yscrollSprite);
+
     //time for animation trigger
     sf::Clock clock;
   
     // point counter
+    int scroll_hits = 0;
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
@@ -130,8 +135,8 @@ int main() {
     points.setCharacterSize(60);
     points.setFillColor(sf::Color::Red);
     points.setPosition(650, 5);
-    bool mainMenu = true;
 
+    bool mainMenu = true;
     window.setFramerateLimit(200);
     while (window.isOpen())
     {
@@ -164,6 +169,7 @@ int main() {
             }
         }
         else {
+
             //Character moves
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
                 sprite.move(2.f,0.f);
@@ -177,14 +183,21 @@ int main() {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
                 sprite.move(0.f,2.f);
             }
+
+            // Item collisions
             for (auto it = onscreenSprites.begin(); it != onscreenSprites.end();) {
                 sf::Sprite curr = *it;
                 if (CheckCollision(sprite, curr)) {
-                    it = onscreenSprites.erase(it);
+                    // if (curr == itemStorage.at(11)) {
+                    //     scroll_hits += 1;
+                    // }
+                    onscreenSprites.erase(it);
                 }
                 else
                     it++; 
             }
+
+
             //Border Collisions
             if (sprite.getPosition().x <=  borderEndx) {
                 sprite.move(2.f,0.f);
@@ -198,7 +211,8 @@ int main() {
             if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
                 sprite.move(0.f,-2.f);
             }
-            //     case time 
+
+            // case time 
             if (clock.getElapsedTime().asSeconds() > 0.1f) {
                 if(SourceSprite.left == 1050) {
                     SourceSprite.left = 0;
@@ -212,19 +226,18 @@ int main() {
 
             // item movement
             if (count % 200 == 0) {
-                x = 337;
+                x = spawn_loc(generator);
                 y = 0;
-                yscrollSprite.setPosition(x, y);
+                int which = which_item(generator);
+                itemStorage.at(which).setPosition(x, y);
+                onscreenSprites.push_back(itemStorage.at(which));
             }
-            yscrollSprite.setPosition(yscrollSprite.getPosition().x, yscrollSprite.getPosition().y + 3);
-            // y += 3;
             count++;
 
             // adding points
-            int collisions = 0;
             // if (borders_collide == true)
-            //   collisions += (amount of points)
-            string numpoints = to_string(collisions);
+            //   scroll_hits += (amount of points)
+            string numpoints = to_string(scroll_hits);
             if (numpoints.size() < 2)
                 numpoints = "0" + numpoints;
             points.setString(numpoints);
@@ -254,21 +267,15 @@ int main() {
                  sf::IntRect idle(1090,0, 210, 200);
                  sf::Sprite charmove6(spritesheet, idle);
             }
+
             //draw sprites  
-            window.clear(); 
-            // window.draw(pointCounter);
+            window.clear();
             window.draw(gameBorder);
+            window.draw(sprite);
             for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
+                (*it).setPosition((*it).getPosition().x, (*it).getPosition().y + 3);
                 window.draw(*it);
             }
-            // window.draw(oclockSprite);
-            // window.draw(heartSprite);
-            // window.draw(boulderSprite);
-            // window.draw(stumpSprite);
-            // window.draw(rscrollSprite);
-            // window.draw(gscrollSprite);
-            // window.draw(yscrollSprite);
-            window.draw(sprite);
             window.draw(points);
             window.display();
         }
