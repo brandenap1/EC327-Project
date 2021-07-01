@@ -254,6 +254,16 @@ int main() {
         }
         // Start at main menu
         else if (mainMenu && !pauseMenu && !gameScreen) {
+            backgroundSprite.setColor(sf::Color::White);
+            gameBorder.setFillColor(sf::Color::Transparent);
+            sprite.setColor(sf::Color::White);
+            points.setFillColor(sf::Color::White);               
+            for (auto ity = onscreenSprites.begin(); ity != onscreenSprites.end(); ity++) {
+                (*ity).setColor(sf::Color::White);
+            }
+            for (auto itw = compSprites.begin(); itw != compSprites.end(); itw++) {
+                (*itw).setColor(sf::Color::White);
+            }
             window.clear();
             window.draw(backgroundSprite);
             compSprites.clear();
@@ -429,6 +439,20 @@ int main() {
                 for (auto itw = compSprites.begin(); itw != compSprites.end(); itw++) {
                     (*itw).setColor(sf::Color(255,255,255,128));
                 }
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                    //mouse coords
+                    sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                    sf::FloatRect homeBounds = homeSprite.getGlobalBounds();
+                    //check click
+                    if (homeBounds.contains(mouse_pos)) {
+                        window.clear();
+                        mainMenu = true;
+                        gameScreen = false;
+                        pauseMenu = false;
+                        gameOver = false;
+                        //go to main  menu
+                    }
+                }
             }
 
             sf::Event event;
@@ -475,8 +499,10 @@ int main() {
             }
             window.draw(sprite);
             window.draw(points);
-            if (gameOver)
+            if (gameOver) {
                 window.draw(gameoverText);
+                window.draw(homeSprite);
+            }
             window.display();
         }
     }
