@@ -78,10 +78,10 @@ int main() {
     // title
     sf::Texture titlesheet;
     titlesheet.loadFromFile("titlescroll.png");
-    sf::IntRect titleSource(188,235,820,760);
+    sf::IntRect titleSource(100,100,1000,900);
     sf::Sprite title(titlesheet, titleSource);
     title.scale(0.3,0.3);
-    title.setPosition(300,150);
+    title.setPosition(270,150);
     mainmenuSprites.push_back(title);
     //time game mode
     sf::IntRect time(0,88, 225, 44);
@@ -177,6 +177,7 @@ int main() {
   
     // point counter
     int scroll_hits;
+    string numpoints;
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
@@ -331,8 +332,8 @@ int main() {
             }
 
             window.display();
-            sf::Sprite inf = mainmenuSprites.at(1);
-            sf::Sprite timed = mainmenuSprites.at(0);
+            sf::Sprite inf = mainmenuSprites.at(2);
+            sf::Sprite timed = mainmenuSprites.at(1);
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                 //mouse coords
                 sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -530,7 +531,7 @@ int main() {
                 count++;
 
                 // adding points
-                string numpoints = to_string(scroll_hits);
+                numpoints = to_string(scroll_hits);
                 if (numpoints.size() < 2)
                     numpoints = "0" + numpoints;
                 points.setString(numpoints);
@@ -542,7 +543,9 @@ int main() {
                 backgroundSprite.setColor(sf::Color(255,255,255,128));
                 gameBorder.setFillColor(sf::Color(255,255,255,128));
                 sprite.setColor(sf::Color(255,255,255,128));
-                points.setPosition(375, 100);
+                points.setPosition(200, 100);
+                string your_points = "Your Score:  " + numpoints;
+                points.setString(your_points);
                 for (auto ity = onscreenSprites.begin(); ity != onscreenSprites.end(); ity++) {
                     (*ity).setColor(sf::Color(255,255,255,128));
                 }
