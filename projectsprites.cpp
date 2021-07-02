@@ -24,7 +24,6 @@ bool CheckCollision(sf::Sprite player, sf::Sprite item) {
     float basey;
     basex = (player.getPosition().x) - (item.getPosition().x);
     basey = (player.getPosition().y) - (item.getPosition().y);
-    // is abs(sqrt(pow())) really necessary
     proximity = abs( sqrt( pow(basex,2) + pow(basey,2)));
     proximity -= player.getLocalBounds().height / 2;
     proximity -= item.getLocalBounds().height / 2;
@@ -40,7 +39,6 @@ int main() {
     // prng setup
     std::random_device rd;
     std::mt19937 generator(rd());
-    std::uniform_int_distribution<> spawn_loc(80, 730);
     std::uniform_int_distribution<> which_item(0, 20);
   
     // window
@@ -63,7 +61,6 @@ int main() {
     spritesheet.loadFromFile("charspritescropped.png");
     sf::IntRect SourceSprite(0,0, 210, 200);
     sf::Sprite sprite(spritesheet,SourceSprite);
-    sprite.setPosition(310,1000);
     sprite.setScale(0.8,0.8);
 
     // spritesheet for main menu background
@@ -119,8 +116,6 @@ int main() {
 
     // vector for top of gameplay sprites
     std::vector<sf::Sprite> compSprites;
-    // compSprites.push_back(pauseSprite);
-
 
     //Items to be moved
     std::vector<sf::Sprite> itemStorage;
@@ -166,27 +161,19 @@ int main() {
 
     //time for animation trigger
     sf::Clock clock;
-    sf::Clock stopWatch;
-    int sec = 60;
-    int secCount = 0;
-
+  
+    // controlling speed
+    float itemspeed;
+    float charspeed;
+    float spawnspeed;
   
     // point counter
-    int scroll_hits = 0;
+    int scroll_hits;
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
     points.setFont(font);
     points.setCharacterSize(60);
-    points.setFillColor(sf::Color::Red);
-    points.setPosition(650, 5);
-
-    //stopwatch for timed mode
-    sf::Text stopwatch;
-    stopwatch.setFont(font);
-    stopwatch.setCharacterSize(60);
-    stopwatch.setFillColor(sf::Color::White);
-    stopwatch.setPosition(340, 5);
   
     // text in pause menu
     sf::Text pauseText;
@@ -257,12 +244,17 @@ int main() {
         }
         // Start at main menu
         else if (mainMenu && !pauseMenu && !gameScreen) {
+            scroll_hits = 0;
+            std::uniform_int_distribution<> spawn_loc(-110, 810);
+            itemspeed = 2.f;
+            charspeed = 4.f;
+            spawnspeed = 200.f;
+            sprite.setPosition(310,1000);
 
-            // what's the purpose of this code?
+            // return to original color
             backgroundSprite.setColor(sf::Color::White);
             gameBorder.setFillColor(sf::Color::Transparent);
-            sprite.setColor(sf::Color::White);
-            points.setFillColor(sf::Color::White);               
+            sprite.setColor(sf::Color::White);            
             for (auto ity = onscreenSprites.begin(); ity != onscreenSprites.end(); ity++) {
                 (*ity).setColor(sf::Color::White);
             }
@@ -273,6 +265,7 @@ int main() {
             window.clear();
             window.draw(backgroundSprite);
             compSprites.clear();
+
             // item movement
             if (count % 200 == 0) {
                 x = spawn_loc(generator);
@@ -286,9 +279,11 @@ int main() {
                 (*its).setPosition((*its).getPosition().x, (*its).getPosition().y + 3);
                 window.draw(*its);
             }
+
             for (auto itr = mainmenuSprites.begin(); itr != mainmenuSprites.end(); itr++) {
                 window.draw(*itr);
             }
+
             window.display();
             sf::Sprite inf = mainmenuSprites.at(1);
             sf::Sprite timed = mainmenuSprites.at(0);
@@ -301,6 +296,7 @@ int main() {
                 //check click
                 if (timeBounds.contains(mouse_pos)) {
                     window.clear();
+                    onscreenSprites.clear();
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
@@ -312,11 +308,11 @@ int main() {
                 }
                 else if (infBounds.contains(mouse_pos)) {
                     window.clear();
+                    onscreenSprites.clear();
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
                     Timed = false;  //play inf game mode
-                    compSprites.push_back(pauseSprite);
                     for (int i = 0; i < 3; i++)
                         compSprites.push_back(life);
                 }
@@ -334,16 +330,16 @@ int main() {
             if (!gameOver){
                 //Character moves
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                    sprite.move(4.f,0.f);
+                    sprite.move(charspeed,0.f);
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                    sprite.move(-4.f,0.f);
+                    sprite.move(-charspeed,0.f);
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                    sprite.move(0.f,-4.f);
+                    sprite.move(0.f,-charspeed);
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                    sprite.move(0.f,4.f);
+                    sprite.move(0.f,charspeed);
                 }
 
                 // Item collisions
@@ -352,27 +348,48 @@ int main() {
                     if (CheckCollision(sprite, curr)) {
                         if (curr.getTextureRect() == itemStorage.at(15).getTextureRect()) {
                             scroll_hits += 1;
+                            // changing speed
+                            if (scroll_hits % 10 == 0) {
+                                itemspeed *= 2;
+                                charspeed *= 2;
+                                spawnspeed /= 2;
+                            }
                         } else if (curr.getTextureRect() == itemStorage.at(18).getTextureRect()) {
-                            scroll_hits += 2;
+                            for (int i = 0; i < 2; i++) {
+                                scroll_hits += 1;
+                                if (scroll_hits % 10 == 0) {
+                                    itemspeed *= 2;
+                                    charspeed *= 2;
+                                    spawnspeed /= 2;
+                                }
+                            }
                         } else if (curr.getTextureRect() == itemStorage.at(20).getTextureRect()) {
-                            scroll_hits += 3;
+                            for (int i = 0; i < 3; i++) {
+                                scroll_hits += 1;
+                                if (scroll_hits % 10 == 0) {
+                                    itemspeed *= 2;
+                                    charspeed *= 2;
+                                    spawnspeed /= 2;
+                                }
+                            }
                         } else if (curr.getTextureRect() == itemStorage.at(7).getTextureRect()) {
-                            // num_hearts -= 1;
                             sprite.setColor(sf::Color::Red);
                             if (not(Timed)) {
                                 compSprites.pop_back();
                             }
                         } else if (curr.getTextureRect() == itemStorage.at(3).getTextureRect()) {
-                            // num_hearts -= 1;
                             sprite.setColor(sf::Color::Red);
                             if (not(Timed)) {
                                 compSprites.pop_back();
                             }
                             scroll_hits -= 2;
                         } else if (curr.getTextureRect() == itemStorage.at(2).getTextureRect()) {
-                            // num_hearts += 1;
+                            if (compSprites.size() < 4)
+                                compSprites.push_back(life);
                         } else {
-                            // time_factor *= 1.15;
+                            itemspeed /= 2;
+                            charspeed /= 2;
+                            spawnspeed *= 2;
                         }
                         onscreenSprites.erase(it);
                     }
@@ -380,9 +397,15 @@ int main() {
                         it++;
                 }
 
-                if (compSprites.size() == 1) {  //No Lives
-                    gameOver = true;
+                if (!Timed) {
+                    if (compSprites.size() == 0) {  //No Lives
+                        gameOver = true;
+                    }
+                } else {
+                    if (sprite.getColor() == sf::Color::Red)
+                        gameOver = true;
                 }
+
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     //mouse coords
                     sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -393,22 +416,21 @@ int main() {
                         mainMenu = false;
                         gameScreen = false;
                         pauseMenu = true;
-                        //play time game mode
                     }
                 }
 
                 //Border Collisions
                 if (sprite.getPosition().x <=  borderEndx) {
-                    sprite.move(4.f,0.f);
+                    sprite.move(charspeed,0.f);
                 }
                 if (sprite.getPosition().y <= borderEndy ) {
-                    sprite.move(0.f,4.f);
+                    sprite.move(0.f,charspeed);
                 }
                 if (sprite.getPosition().x + sprite.getLocalBounds().width >= window.getSize().x ) {
-                    sprite.move(-4.f,0.f);
+                    sprite.move(-charspeed,0.f);
                 }
                 if (sprite.getPosition().y + sprite.getLocalBounds().height >= window.getSize().y ) {
-                    sprite.move(0.f,-4.f);
+                    sprite.move(0.f,-charspeed);
                 }
 
                 // case time 
@@ -439,7 +461,8 @@ int main() {
                 }
 
                 // item movement
-                if (count % 200 == 0) {
+                std::uniform_int_distribution<> spawn_loc(80, 620);
+                if (std::fmod(count, spawnspeed) == 0.f) {
                     x = spawn_loc(generator);
                     y = 0;
                     int which = which_item(generator);
@@ -453,12 +476,15 @@ int main() {
                 if (numpoints.size() < 2)
                     numpoints = "0" + numpoints;
                 points.setString(numpoints);
+                points.setPosition(650, 5);
+                points.setFillColor(sf::Color::Red);
+
             }
             else {
                 backgroundSprite.setColor(sf::Color(255,255,255,128));
                 gameBorder.setFillColor(sf::Color(255,255,255,128));
                 sprite.setColor(sf::Color(255,255,255,128));
-                points.setFillColor(sf::Color(255,255,255,128));               
+                points.setPosition(375, 100);
                 for (auto ity = onscreenSprites.begin(); ity != onscreenSprites.end(); ity++) {
                     (*ity).setColor(sf::Color(255,255,255,128));
                 }
@@ -509,12 +535,12 @@ int main() {
             //draw sprites  
             window.clear();
             window.draw(backgroundSprite);
-            window.draw(gameBorder);
             window.draw(sprite);
             for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
-                (*it).setPosition((*it).getPosition().x, (*it).getPosition().y + 3);
+                (*it).setPosition((*it).getPosition().x, (*it).getPosition().y + itemspeed);
                 window.draw(*it);
             }
+            window.draw(gameBorder);
             if (!Timed) {
                 int p = 260;
                 for (auto itv = compSprites.begin(); itv != compSprites.end(); itv++) {
@@ -523,13 +549,12 @@ int main() {
                     window.draw(*itv);
                 }
             }
-            else {
-                window.draw(pauseSprite);
-            }
+            window.draw(pauseSprite);
             window.draw(sprite);
             window.draw(points);
             window.draw(stopwatch);
             if (gameOver) {
+                window.draw(points);
                 window.draw(gameoverText);
                 window.draw(homeSprite);
             }
