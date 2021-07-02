@@ -166,6 +166,10 @@ int main() {
 
     //time for animation trigger
     sf::Clock clock;
+    sf::Clock stopWatch;
+    int sec = 60;
+    int secCount = 0;
+
   
     // point counter
     int scroll_hits = 0;
@@ -176,6 +180,13 @@ int main() {
     points.setCharacterSize(60);
     points.setFillColor(sf::Color::Red);
     points.setPosition(650, 5);
+
+    //stopwatch for timed mode
+    sf::Text stopwatch;
+    stopwatch.setFont(font);
+    stopwatch.setCharacterSize(60);
+    stopwatch.setFillColor(sf::Color::White);
+    stopwatch.setPosition(340, 5);
   
     // text in pause menu
     sf::Text pauseText;
@@ -293,7 +304,11 @@ int main() {
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
-                    Timed = true;  //play time game mode
+                    Timed = true;
+                    sec = 60;
+                    secCount = 0;
+                    //play time game mode
+                    Timed = true;
                 }
                 else if (infBounds.contains(mouse_pos)) {
                     window.clear();
@@ -408,6 +423,20 @@ int main() {
                     sprite.setTextureRect(SourceSprite);
                     clock.restart();
                 }
+                if (Timed) {
+                    stopwatch.setString(to_string(sec));
+                    secCount++;
+                    if (secCount > 200) {
+                        --sec;
+                        secCount = 0;
+                    }
+                    if (sec == 0){
+                        sec = 60;
+                        secCount = 0;
+                        gameOver = true;
+                    }
+
+                }
 
                 // item movement
                 if (count % 200 == 0) {
@@ -499,6 +528,7 @@ int main() {
             }
             window.draw(sprite);
             window.draw(points);
+            window.draw(stopwatch);
             if (gameOver) {
                 window.draw(gameoverText);
                 window.draw(homeSprite);
