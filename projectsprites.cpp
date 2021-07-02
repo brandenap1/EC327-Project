@@ -77,11 +77,11 @@ int main() {
     menusheet.loadFromFile("mainmenusprites.png");
     // title
     sf::Texture titlesheet;
-    titlesheet.loadFromFile("Titlescroll.jpg");
+    titlesheet.loadFromFile("titlescroll.png");
     sf::IntRect titleSource(188,235,820,760);
     sf::Sprite title(titlesheet, titleSource);
     title.scale(0.3,0.3);
-    title.setPosition(303,150);
+    title.setPosition(300,150);
     mainmenuSprites.push_back(title);
     //time game mode
     sf::IntRect time(0,88, 225, 44);
