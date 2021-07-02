@@ -161,7 +161,7 @@ int main() {
 
     //time for animation trigger
     sf::Clock clock;
-
+  
     // controlling speed
     float itemspeed;
     float charspeed;
@@ -300,7 +300,11 @@ int main() {
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
-                    Timed = true;  //play time game mode
+                    Timed = true;
+                    sec = 60;
+                    secCount = 0;
+                    //play time game mode
+                    Timed = true;
                 }
                 else if (infBounds.contains(mouse_pos)) {
                     window.clear();
@@ -441,6 +445,20 @@ int main() {
                     sprite.setTextureRect(SourceSprite);
                     clock.restart();
                 }
+                if (Timed) {
+                    stopwatch.setString(to_string(sec));
+                    secCount++;
+                    if (secCount > 200) {
+                        --sec;
+                        secCount = 0;
+                    }
+                    if (sec == 0){
+                        sec = 60;
+                        secCount = 0;
+                        gameOver = true;
+                    }
+
+                }
 
                 // item movement
                 std::uniform_int_distribution<> spawn_loc(80, 620);
@@ -534,6 +552,7 @@ int main() {
             window.draw(pauseSprite);
             window.draw(sprite);
             window.draw(points);
+            window.draw(stopwatch);
             if (gameOver) {
                 window.draw(points);
                 window.draw(gameoverText);
