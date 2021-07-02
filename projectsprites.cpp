@@ -40,7 +40,6 @@ int main() {
     // prng setup
     std::random_device rd;
     std::mt19937 generator(rd());
-    std::uniform_int_distribution<> spawn_loc(80, 730);
     std::uniform_int_distribution<> which_item(0, 20);
   
     // window
@@ -119,8 +118,6 @@ int main() {
 
     // vector for top of gameplay sprites
     std::vector<sf::Sprite> compSprites;
-    // compSprites.push_back(pauseSprite);
-
 
     //Items to be moved
     std::vector<sf::Sprite> itemStorage;
@@ -168,7 +165,7 @@ int main() {
     sf::Clock clock;
   
     // point counter
-    int scroll_hits = 0;
+    int scroll_hits;
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf");
     sf::Text points;
@@ -246,6 +243,8 @@ int main() {
         }
         // Start at main menu
         else if (mainMenu && !pauseMenu && !gameScreen) {
+            scroll_hits = 0;
+            std::uniform_int_distribution<> spawn_loc(-110, 810);
 
             // what's the purpose of this code?
             backgroundSprite.setColor(sf::Color::White);
@@ -262,6 +261,7 @@ int main() {
             window.clear();
             window.draw(backgroundSprite);
             compSprites.clear();
+
             // item movement
             if (count % 200 == 0) {
                 x = spawn_loc(generator);
@@ -275,9 +275,11 @@ int main() {
                 (*its).setPosition((*its).getPosition().x, (*its).getPosition().y + 3);
                 window.draw(*its);
             }
+
             for (auto itr = mainmenuSprites.begin(); itr != mainmenuSprites.end(); itr++) {
                 window.draw(*itr);
             }
+
             window.display();
             sf::Sprite inf = mainmenuSprites.at(1);
             sf::Sprite timed = mainmenuSprites.at(0);
@@ -290,6 +292,7 @@ int main() {
                 //check click
                 if (timeBounds.contains(mouse_pos)) {
                     window.clear();
+                    onscreenSprites.clear();
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
@@ -297,11 +300,11 @@ int main() {
                 }
                 else if (infBounds.contains(mouse_pos)) {
                     window.clear();
+                    onscreenSprites.clear();
                     mainMenu = false;
                     gameScreen = true;
                     pauseMenu = false;
                     Timed = false;  //play inf game mode
-                    compSprites.push_back(pauseSprite);
                     for (int i = 0; i < 3; i++)
                         compSprites.push_back(life);
                 }
@@ -365,9 +368,15 @@ int main() {
                         it++;
                 }
 
-                if (compSprites.size() == 1) {  //No Lives
-                    gameOver = true;
+                if (!Timed) {
+                    if (compSprites.size() == 0) {  //No Lives
+                        gameOver = true;
+                    }
+                } else {
+                    if (sprite.getColor() == sf::Color::Red)
+                        gameOver = true;
                 }
+
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     //mouse coords
                     sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -410,6 +419,7 @@ int main() {
                 }
 
                 // item movement
+                std::uniform_int_distribution<> spawn_loc(80, 620);
                 if (count % 200 == 0) {
                     x = spawn_loc(generator);
                     y = 0;
@@ -480,12 +490,12 @@ int main() {
             //draw sprites  
             window.clear();
             window.draw(backgroundSprite);
-            window.draw(gameBorder);
             window.draw(sprite);
             for (auto it = onscreenSprites.begin(); it != onscreenSprites.end(); it++) {
                 (*it).setPosition((*it).getPosition().x, (*it).getPosition().y + 3);
                 window.draw(*it);
             }
+            window.draw(gameBorder);
             if (!Timed) {
                 int p = 260;
                 for (auto itv = compSprites.begin(); itv != compSprites.end(); itv++) {
@@ -494,9 +504,7 @@ int main() {
                     window.draw(*itv);
                 }
             }
-            else {
-                window.draw(pauseSprite);
-            }
+            window.draw(pauseSprite);
             window.draw(sprite);
             window.draw(points);
             if (gameOver) {
